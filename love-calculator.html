@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💘 Love Calculator — Find Your Match!</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink: #FF6B9D;
+    --hot: #FF3366;
+    --purple: #9B59B6;
+    --light: #FFF0F5;
+    --dark: #2D1B33;
+    --gold: #FFD700;
+    --card: rgba(255,255,255,0.92);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #FF6B9D 0%, #C850C0 40%, #4158D0 100%);
+    font-family: 'Nunito', sans-serif;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Floating hearts background */
+  .hearts-bg {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .heart-float {
+    position: absolute;
+    font-size: 20px;
+    animation: floatUp linear infinite;
+    opacity: 0;
+  }
+
+  @keyframes floatUp {
+    0% { transform: translateY(100vh) rotate(0deg); opacity: 0.6; }
+    100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 16px;
+  }
+
+  /* MAIN CARD */
+  .card {
+    background: var(--card);
+    border-radius: 28px;
+    padding: 36px 28px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.3);
+    backdrop-filter: blur(10px);
+  }
+
+  .logo {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .logo .emoji {
+    font-size: 52px;
+    display: block;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+  }
+
+  .logo h1 {
+    font-family: 'Pacifico', cursive;
+    font-size: 28px;
+    background: linear-gradient(135deg, var(--hot), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-top: 6px;
+  }
+
+  .logo p {
+    color: #888;
+    font-size: 13px;
+    margin-top: 4px;
+  }
+
+  /* INPUTS */
+  .inputs {
+    margin: 24px 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .input-wrap {
+    position: relative;
+  }
+
+  .input-wrap .icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+  }
+
+  .input-wrap input {
+    width: 100%;
+    padding: 14px 16px 14px 44px;
+    border: 2px solid #FFB3CC;
+    border-radius: 14px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--dark);
+    outline: none;
+    background: #FFF8FB;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .input-wrap input:focus {
+    border-color: var(--pink);
+    box-shadow: 0 0 0 3px rgba(255,107,157,0.15);
+  }
+
+  .heart-divider {
+    text-align: center;
+    font-size: 22px;
+    color: var(--pink);
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+
+  /* BUTTON */
+  .calc-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--hot), var(--purple));
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 17px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 6px 20px rgba(255,51,102,0.4);
+    letter-spacing: 0.5px;
+  }
+
+  .calc-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(255,51,102,0.45);
+  }
+
+  .calc-btn:active { transform: translateY(0); }
+
+  /* LOADING */
+  .loading {
+    display: none;
+    text-align: center;
+    padding: 20px 0;
+  }
+
+  .loading-bar-wrap {
+    background: #FFE0EC;
+    border-radius: 20px;
+    height: 12px;
+    overflow: hidden;
+    margin: 12px 0;
+  }
+
+  .loading-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--pink), var(--hot));
+    border-radius: 20px;
+    transition: width 0.4s ease;
+  }
+
+  .loading p {
+    color: var(--purple);
+    font-weight: 700;
+    font-size: 14px;
+    margin-top: 4px;
+  }
+
+  /* RESULT */
+  .result {
+    display: none;
+    text-align: center;
+    padding: 16px 0 0;
+    animation: fadeIn 0.5s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-pct {
+    font-family: 'Pacifico', cursive;
+    font-size: 72px;
+    background: linear-gradient(135deg, var(--hot), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .result-emoji {
+    font-size: 36px;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .result-msg {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 6px;
+  }
+
+  .result-sub {
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 18px;
+  }
+
+  .result-bar-wrap {
+    background: #FFE0EC;
+    border-radius: 20px;
+    height: 16px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .result-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--pink), var(--hot), var(--gold));
+    border-radius: 20px;
+    transition: width 1.2s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  .try-again {
+    background: none;
+    border: 2px solid var(--pink);
+    color: var(--pink);
+    border-radius: 12px;
+    padding: 10px 24px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .try-again:hover {
+    background: var(--pink);
+    color: white;
+  }
+
+  /* FOOTER */
+  .footer-note {
+    text-align: center;
+    color: rgba(255,255,255,0.7);
+    font-size: 12px;
+    margin-top: 20px;
+  }
+
+  /* ADMIN PANEL */
+  .admin-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 100;
+    backdrop-filter: blur(4px);
+    padding: 20px;
+    overflow-y: auto;
+  }
+
+  .admin-panel {
+    background: #1A0A20;
+    border-radius: 20px;
+    padding: 24px;
+    max-width: 500px;
+    margin: 0 auto;
+    color: white;
+    border: 1px solid #FF6B9D44;
+  }
+
+  .admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .admin-header h2 {
+    font-family: 'Pacifico', cursive;
+    color: var(--pink);
+    font-size: 20px;
+  }
+
+  .close-admin {
+    background: #FF3366;
+    border: none;
+    color: white;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .admin-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card {
+    background: rgba(255,107,157,0.12);
+    border: 1px solid rgba(255,107,157,0.25);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--pink);
+    display: block;
+  }
+
+  .stat-card .label {
+    font-size: 11px;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .entries-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+
+  .entry-row {
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+
+  .entry-row .names {
+    flex: 1;
+    font-weight: 700;
+    color: white;
+  }
+
+  .entry-row .pct {
+    font-weight: 800;
+    color: var(--gold);
+    font-size: 15px;
+  }
+
+  .entry-row .time {
+    font-size: 10px;
+    color: #666;
+    min-width: 70px;
+    text-align: right;
+  }
+
+  .no-entries {
+    text-align: center;
+    color: #555;
+    padding: 30px;
+    font-size: 14px;
+  }
+
+  .clear-btn {
+    width: 100%;
+    margin-top: 14px;
+    padding: 10px;
+    background: rgba(255,51,102,0.15);
+    border: 1px solid rgba(255,51,102,0.3);
+    color: #FF6688;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  /* Admin trigger - hidden */
+  .admin-trigger {
+    position: fixed;
+    bottom: 12px;
+    right: 16px;
+    background: rgba(0,0,0,0.3);
+    color: rgba(255,255,255,0.4);
+    border: none;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    z-index: 50;
+    transition: all 0.2s;
+  }
+
+  .admin-trigger:hover {
+    background: rgba(0,0,0,0.6);
+    color: white;
+  }
+</style>
+</head>
+<body>
+
+<!-- Floating hearts -->
+<div class="hearts-bg" id="heartsContainer"></div>
+
+<div class="container">
+  <div class="card">
+    <div class="logo">
+      <span class="emoji">💘</span>
+      <h1>Love Calculator</h1>
+      <p>Find out your love compatibility ✨</p>
+    </div>
+
+    <!-- INPUT FORM -->
+    <div class="inputs" id="inputSection">
+      <div class="input-wrap">
+        <span class="icon">👤</span>
+        <input type="text" id="name1" placeholder="Your name..." maxlength="30" />
+      </div>
+      <div class="heart-divider">💕</div>
+      <div class="input-wrap">
+        <span class="icon">👤</span>
+        <input type="text" id="name2" placeholder="Their name..." maxlength="30" />
+      </div>
+    </div>
+
+    <button class="calc-btn" id="calcBtn" onclick="calculate()">
+      💖 Calculate Love Match!
+    </button>
+
+    <!-- LOADING -->
+    <div class="loading" id="loadingSection">
+      <p id="loadingText">Analysing cosmic connection... ✨</p>
+      <div class="loading-bar-wrap">
+        <div class="loading-bar" id="loadingBar"></div>
+      </div>
+      <p id="loadingPct">0%</p>
+    </div>
+
+    <!-- RESULT -->
+    <div class="result" id="resultSection">
+      <span class="result-emoji" id="resultEmoji">💖</span>
+      <div class="result-pct" id="resultPct">0%</div>
+      <div class="result-bar-wrap">
+        <div class="result-bar" id="resultBar" style="width:0%"></div>
+      </div>
+      <div class="result-msg" id="resultMsg">Made for each other!</div>
+      <div class="result-sub" id="resultSub">The stars say it all 🌟</div>
+      <button class="try-again" onclick="resetForm()">🔄 Try Again</button>
+    </div>
+  </div>
+
+  <div class="footer-note">💝 Just for fun! Share with your friends 💝</div>
+</div>
+
+<!-- Hidden admin trigger -->
+<button class="admin-trigger" onclick="openAdmin()">⚙ admin</button>
+
+<!-- ADMIN PANEL -->
+<div class="admin-overlay" id="adminOverlay">
+  <div class="admin-panel">
+    <div class="admin-header">
+      <h2>🔐 Admin Panel</h2>
+      <button class="close-admin" onclick="closeAdmin()">✕</button>
+    </div>
+
+    <div class="admin-stats">
+      <div class="stat-card">
+        <span class="num" id="totalCount">0</span>
+        <span class="label">Total Entries</span>
+      </div>
+      <div class="stat-card">
+        <span class="num" id="todayCount">0</span>
+        <span class="label">Today</span>
+      </div>
+    </div>
+
+    <div style="color:#aaa; font-size:12px; margin-bottom:10px; letter-spacing:1px; text-transform:uppercase;">Recent Entries</div>
+    <div class="entries-list" id="entriesList">
+      <div class="no-entries">No entries yet 😔<br>Share the link with your friends!</div>
+    </div>
+
+    <button class="clear-btn" onclick="clearEntries()">🗑️ Clear All Entries</button>
+  </div>
+</div>
+
+<script>
+  // ── Floating hearts ──
+  const container = document.getElementById('heartsContainer');
+  const heartEmojis = ['❤️','💕','💖','💗','💓','💞','💝','🌸'];
+  for (let i = 0; i < 18; i++) {
+    const h = document.createElement('div');
+    h.className = 'heart-float';
+    h.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+    h.style.left = Math.random() * 100 + '%';
+    h.style.animationDuration = (6 + Math.random() * 10) + 's';
+    h.style.animationDelay = (Math.random() * 10) + 's';
+    h.style.fontSize = (14 + Math.random() * 20) + 'px';
+    container.appendChild(h);
+  }
+
+  // ── Storage helpers ──
+  const STORAGE_KEY = 'loveCalcEntries';
+
+  async function saveEntry(n1, n2, pct) {
+    let entries = await loadEntries();
+    entries.unshift({
+      name1: n1,
+      name2: n2,
+      pct: pct,
+      time: new Date().toISOString()
+    });
+    try {
+      await window.storage.set(STORAGE_KEY, JSON.stringify(entries), true);
+    } catch(e) {
+      // fallback local
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    }
+  }
+
+  async function loadEntries() {
+    try {
+      const result = await window.storage.get(STORAGE_KEY, true);
+      return result ? JSON.parse(result.value) : [];
+    } catch(e) {
+      try {
+        const local = localStorage.getItem(STORAGE_KEY);
+        return local ? JSON.parse(local) : [];
+      } catch { return []; }
+    }
+  }
+
+  // ── Love score (deterministic from names) ──
+  function loveScore(a, b) {
+    const str = (a + b).toLowerCase().replace(/\s/g,'');
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      hash |= 0;
+    }
+    // Always give 85-99% for the prank effect 😈
+    return 85 + (Math.abs(hash) % 15);
+  }
+
+  function getResultDetails(pct) {
+    if (pct >= 95) return { emoji: '🔥', msg: 'PERFECT SOULMATES!', sub: 'You were literally made for each other 💍' };
+    if (pct >= 90) return { emoji: '💖', msg: 'Deeply in Love!', sub: 'The stars are screaming your names together ✨' };
+    return { emoji: '😍', msg: 'Amazing Match!', sub: 'Strong romantic energy detected 💫' };
+  }
+
+  // ── Calculate ──
+  async function calculate() {
+    const n1 = document.getElementById('name1').value.trim();
+    const n2 = document.getElementById('name2').value.trim();
+    if (!n1 || !n2) {
+      alert('💕 Please enter both names!');
+      return;
+    }
+
+    const pct = loveScore(n1, n2);
+
+    // Hide inputs, show loading
+    document.getElementById('inputSection').style.display = 'none';
+    document.getElementById('calcBtn').style.display = 'none';
+    document.getElementById('loadingSection').style.display = 'block';
+
+    // Animate loading bar
+    const msgs = [
+      'Checking heart compatibility... 💓',
+      'Analysing name vibrations... ✨',
+      'Consulting the love oracle... 🔮',
+      'Almost there... 💫',
+    ];
+    let progress = 0;
+    const bar = document.getElementById('loadingBar');
+    const pctEl = document.getElementById('loadingPct');
+    const textEl = document.getElementById('loadingText');
+    let msgIdx = 0;
+
+    await new Promise(resolve => {
+      const interval = setInterval(() => {
+        progress += Math.random() * 18 + 5;
+        if (progress > 100) progress = 100;
+        bar.style.width = progress + '%';
+        pctEl.textContent = Math.floor(progress) + '%';
+        if (Math.floor(progress / 25) !== msgIdx && msgIdx < msgs.length - 1) {
+          msgIdx = Math.floor(progress / 25);
+          textEl.textContent = msgs[Math.min(msgIdx, msgs.length-1)];
+        }
+        if (progress >= 100) {
+          clearInterval(interval);
+          setTimeout(resolve, 300);
+        }
+      }, 200);
+    });
+
+    // Save to storage
+    await saveEntry(n1, n2, pct);
+
+    // Show result
+    document.getElementById('loadingSection').style.display = 'none';
+    const resultSec = document.getElementById('resultSection');
+    resultSec.style.display = 'block';
+    document.getElementById('resultPct').textContent = pct + '%';
+
+    const details = getResultDetails(pct);
+    document.getElementById('resultEmoji').textContent = details.emoji;
+    document.getElementById('resultMsg').textContent = details.msg;
+    document.getElementById('resultSub').textContent = details.sub;
+
+    setTimeout(() => {
+      document.getElementById('resultBar').style.width = pct + '%';
+    }, 100);
+  }
+
+  function resetForm() {
+    document.getElementById('name1').value = '';
+    document.getElementById('name2').value = '';
+    document.getElementById('inputSection').style.display = 'flex';
+    document.getElementById('calcBtn').style.display = 'block';
+    document.getElementById('resultSection').style.display = 'none';
+    document.getElementById('loadingBar').style.width = '0%';
+    document.getElementById('loadingPct').textContent = '0%';
+  }
+
+  // ── Admin panel ──
+  async function openAdmin() {
+    const entries = await loadEntries();
+    renderAdmin(entries);
+    document.getElementById('adminOverlay').style.display = 'block';
+  }
+
+  function closeAdmin() {
+    document.getElementById('adminOverlay').style.display = 'none';
+  }
+
+  function renderAdmin(entries) {
+    document.getElementById('totalCount').textContent = entries.length;
+
+    const today = new Date().toDateString();
+    const todayCount = entries.filter(e => new Date(e.time).toDateString() === today).length;
+    document.getElementById('todayCount').textContent = todayCount;
+
+    const list = document.getElementById('entriesList');
+    if (entries.length === 0) {
+      list.innerHTML = '<div class="no-entries">No entries yet 😔<br>Share the link with your friends!</div>';
+      return;
+    }
+
+    list.innerHTML = entries.map((e, i) => {
+      const t = new Date(e.time);
+      const timeStr = t.toLocaleDateString('en-IN', { day:'numeric', month:'short' }) + ' ' +
+                      t.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+      return `
+        <div class="entry-row">
+          <span style="color:#FF6B9D; font-size:13px;">#${entries.length - i}</span>
+          <div class="names">${e.name1} 💕 ${e.name2}</div>
+          <div class="pct">${e.pct}%</div>
+          <div class="time">${timeStr}</div>
+        </div>`;
+    }).join('');
+  }
+
+  async function clearEntries() {
+    if (!confirm('Clear all entries?')) return;
+    try {
+      await window.storage.delete(STORAGE_KEY, true);
+    } catch(e) {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+    renderAdmin([]);
+  }
+
+  // Enter key support
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') calculate();
+  });
+</script>
+</body>
+</html>
